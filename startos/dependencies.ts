@@ -4,14 +4,15 @@ import { sdk } from './sdk'
 
 export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
   const downloadDestination =
-    (await storeJson.read((s) => s.downloadDestination).const(effects)) ?? 'local'
+    (await storeJson.read((s) => s.downloadDestination).const(effects)) ??
+    'local'
 
   const deps: T.CurrentDependenciesResult<any> = {}
 
   if (downloadDestination === 'filebrowser') {
     deps['filebrowser'] = {
       kind: 'exists',
-      versionRange: '>=2.62.2:0',
+      versionRange: '>=2.63.2:0',
     }
   }
 

@@ -13,13 +13,21 @@ const dict = {
 
   // actions/downloadDestination.ts
   'Download Destination': 6,
-  'File Browser': 7,
-  'Local Storage': 8,
-  'Select Download Destination': 9,
-  'Service MeTube uses to save downloads': 10,
+  'Where MeTube saves downloads. "Local storage" keeps them on this service. "File Browser" writes them into File Browser so you can browse, download, and manage the files there.': 7,
+  'Local storage': 8,
+  'File Browser': 9,
+  'File Browser Subfolder': 10,
+  'Folder inside File Browser where downloads are saved. Created automatically; File Browser must be installed.': 11,
+  'Select Download Destination': 12,
+  'Choose where MeTube saves downloads — locally, or into File Browser.': 13,
 
-  // init/taskSelectDownloadDestination.ts
-  'Select where MeTube saves downloads': 11,
+  // actions/setPassword.ts
+  'Set Web UI Password': 14,
+  'Reset Web UI Password': 15,
+  'Generate the password for the MeTube web UI. The username is always "admin". Running this again generates a new password.': 16,
+
+  // init/watchPassword.ts
+  'Set a password to protect the MeTube web interface': 17,
 } as const
 
 /**

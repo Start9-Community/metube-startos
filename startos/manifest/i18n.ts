@@ -7,11 +7,16 @@ export const short = {
 }
 
 export const filebrowserDescription = {
-  en_US: 'Used to save downloads to File Browser',
-  es_ES: 'Usado para guardar descargas en File Browser',
-  de_DE: 'Wird verwendet, um Downloads in File Browser zu speichern',
-  pl_PL: 'Używany do zapisywania pobranych plików w File Browser',
-  fr_FR: 'Utilisé pour enregistrer les téléchargements dans File Browser',
+  en_US:
+    'Optional. Lets MeTube save downloads into File Browser so you can browse, download, and manage the files there.',
+  es_ES:
+    'Opcional. Permite que MeTube guarde las descargas en File Browser para que puedas explorar, descargar y gestionar los archivos allí.',
+  de_DE:
+    'Optional. Ermöglicht MeTube, Downloads in File Browser zu speichern, sodass Sie die Dateien dort durchsuchen, herunterladen und verwalten können.',
+  pl_PL:
+    'Opcjonalne. Pozwala MeTube zapisywać pobrane pliki w File Browser, dzięki czemu możesz je tam przeglądać, pobierać i zarządzać nimi.',
+  fr_FR:
+    'Optionnel. Permet à MeTube d’enregistrer les téléchargements dans File Browser afin que vous puissiez parcourir, télécharger et gérer les fichiers à cet endroit.',
 }
 
 export const long = {
