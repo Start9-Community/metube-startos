@@ -1,11 +1,11 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { long, short, filebrowserDescription } from './i18n'
+import { filebrowserDescription, long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'metube',
   title: 'MeTube',
   license: 'AGPL-3.0',
-  packageRepo: 'https://github.com/saiththerobo/metube-startos',
+  packageRepo: 'https://github.com/Start9-Community/metube-startos',
   upstreamRepo: 'https://github.com/alexta69/metube',
   marketingUrl: 'https://github.com/alexta69/metube',
   donationUrl: null,
@@ -17,14 +17,6 @@ export const manifest = setupManifest({
       source: { dockerTag: 'alexta69/metube:2026.04.28' },
       arch: ['x86_64', 'aarch64'],
     },
-  },
-  alerts: {
-    install: null,
-    update: null,
-    uninstall: null,
-    restore: null,
-    start: null,
-    stop: null,
   },
   dependencies: {
     filebrowser: {

@@ -4,8 +4,7 @@ import { setInterfaces } from '../interfaces'
 import { versionGraph } from '../versions'
 import { actions } from '../actions'
 import { restoreInit } from '../backups'
-import { initializeService } from './initializeService'
-import { taskSelectDownloadDestination } from './taskSelectDownloadDestination'
+import { watchPassword } from './watchPassword'
 
 export const init = sdk.setupInit(
   restoreInit,
@@ -13,8 +12,7 @@ export const init = sdk.setupInit(
   setInterfaces,
   setDependencies,
   actions,
-  initializeService,
-  taskSelectDownloadDestination,
+  watchPassword,
 )
 
 export const uninit = sdk.setupUninit(versionGraph)
