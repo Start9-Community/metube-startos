@@ -1,53 +1,53 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '2026.6.28:0',
+  version: '2026.7.12:0',
   releaseNotes: {
-    en_US:
-      'Updated MeTube to 2026.6.28.\n\n' +
-      'Highlights since 2026.4.28:\n' +
-      '- Added support for downloading live streams\n' +
-      '- Optional following of nightly yt-dlp releases; yt-dlp updated to 2026.6.9\n' +
-      '- Fixes for batch downloads, cookie-file downloads, and audio URL handling\n' +
-      '- Upgraded the web UI to Angular 22 and refreshed dependencies\n\n' +
-      'Full changelog: https://github.com/alexta69/metube/releases\n\n' +
-      'Also includes internal updates for start-sdk 2.0.',
-    es_ES:
-      'Se actualizó MeTube a 2026.6.28.\n\n' +
-      'Novedades desde 2026.4.28:\n' +
-      '- Se añadió compatibilidad con la descarga de transmisiones en vivo\n' +
-      '- Seguimiento opcional de las versiones nocturnas de yt-dlp; yt-dlp actualizado a 2026.6.9\n' +
-      '- Correcciones en descargas por lotes, descargas de archivos de cookies y gestión de URL de audio\n' +
-      '- Se actualizó la interfaz web a Angular 22 y se renovaron las dependencias\n\n' +
-      'Registro de cambios completo: https://github.com/alexta69/metube/releases\n\n' +
-      'También incluye actualizaciones internas para start-sdk 2.0.',
-    de_DE:
-      'MeTube wurde auf 2026.6.28 aktualisiert.\n\n' +
-      'Highlights seit 2026.4.28:\n' +
-      '- Unterstützung für das Herunterladen von Livestreams hinzugefügt\n' +
-      '- Optionales Verfolgen der nächtlichen yt-dlp-Releases; yt-dlp auf 2026.6.9 aktualisiert\n' +
-      '- Korrekturen bei Stapel-Downloads, Cookie-Datei-Downloads und der Audio-URL-Verarbeitung\n' +
-      '- Weboberfläche auf Angular 22 aktualisiert und Abhängigkeiten erneuert\n\n' +
-      'Vollständiges Changelog: https://github.com/alexta69/metube/releases\n\n' +
-      'Enthält außerdem interne Aktualisierungen für start-sdk 2.0.',
-    pl_PL:
-      'Zaktualizowano MeTube do 2026.6.28.\n\n' +
-      'Najważniejsze zmiany od 2026.4.28:\n' +
-      '- Dodano obsługę pobierania transmisji na żywo\n' +
-      '- Opcjonalne śledzenie nocnych wydań yt-dlp; yt-dlp zaktualizowano do 2026.6.9\n' +
-      '- Poprawki pobierania wsadowego, pobierania plików cookie i obsługi adresów URL audio\n' +
-      '- Zaktualizowano interfejs sieciowy do Angular 22 i odświeżono zależności\n\n' +
-      'Pełny dziennik zmian: https://github.com/alexta69/metube/releases\n\n' +
-      'Zawiera również wewnętrzne aktualizacje dla start-sdk 2.0.',
-    fr_FR:
-      'MeTube a été mis à jour vers 2026.6.28.\n\n' +
-      'Nouveautés depuis 2026.4.28 :\n' +
-      '- Ajout de la prise en charge du téléchargement des diffusions en direct\n' +
-      '- Suivi optionnel des versions nightly de yt-dlp ; yt-dlp mis à jour vers 2026.6.9\n' +
-      '- Corrections des téléchargements par lots, des téléchargements de fichiers de cookies et de la gestion des URL audio\n' +
-      "- Mise à niveau de l'interface web vers Angular 22 et rafraîchissement des dépendances\n\n" +
-      'Journal des modifications complet : https://github.com/alexta69/metube/releases\n\n' +
-      'Comprend également des mises à jour internes pour start-sdk 2.0.',
+    en_US: `Updated MeTube to 2026.7.12.
+
+- Hardens the download lifecycle, subscriptions, and web UI against unexpected failures.
+- Honors the output template when downloading a whole channel.
+- No longer marks a subscription as broken when every entry is filtered out for having already been downloaded.
+- Fixes saving download state on NFS and other storage where atomic writes are rejected, and restricts the state file to owner-only permissions.
+- Refreshes dependencies.
+
+Full release notes: https://github.com/alexta69/metube/releases/tag/2026.07.12`,
+    es_ES: `Actualiza MeTube a 2026.7.12.
+
+- Refuerza el ciclo de vida de las descargas, las suscripciones y la interfaz web frente a fallos inesperados.
+- Respeta la plantilla de salida al descargar un canal completo.
+- Ya no marca una suscripción como defectuosa cuando todas las entradas se filtran por haberse descargado antes.
+- Corrige el guardado del estado de las descargas en NFS y otros almacenamientos que rechazan las escrituras atómicas, y restringe el archivo de estado a permisos exclusivos del propietario.
+- Actualiza las dependencias.
+
+Notas de la versión completas: https://github.com/alexta69/metube/releases/tag/2026.07.12`,
+    de_DE: `Aktualisiert MeTube auf 2026.7.12.
+
+- Härtet den Download-Lebenszyklus, die Abonnements und die Weboberfläche gegen unerwartete Fehler ab.
+- Berücksichtigt die Ausgabevorlage beim Herunterladen eines gesamten Kanals.
+- Markiert ein Abonnement nicht mehr als fehlerhaft, wenn alle Einträge herausgefiltert werden, weil sie bereits heruntergeladen wurden.
+- Behebt das Speichern des Download-Status auf NFS und anderen Speichern, die atomare Schreibvorgänge ablehnen, und beschränkt die Statusdatei auf Berechtigungen nur für den Eigentümer.
+- Aktualisiert die Abhängigkeiten.
+
+Vollständige Versionshinweise: https://github.com/alexta69/metube/releases/tag/2026.07.12`,
+    pl_PL: `Aktualizuje MeTube do 2026.7.12.
+
+- Wzmacnia cykl życia pobierania, subskrypcje oraz interfejs sieciowy na wypadek nieoczekiwanych awarii.
+- Uwzględnia szablon nazwy pliku podczas pobierania całego kanału.
+- Nie oznacza już subskrypcji jako uszkodzonej, gdy wszystkie wpisy zostaną odfiltrowane z powodu wcześniejszego pobrania.
+- Naprawia zapisywanie stanu pobierania na NFS i innych nośnikach odrzucających zapisy atomowe oraz ogranicza plik stanu do uprawnień wyłącznie właściciela.
+- Odświeża zależności.
+
+Pełne informacje o wydaniu: https://github.com/alexta69/metube/releases/tag/2026.07.12`,
+    fr_FR: `Met à jour MeTube vers 2026.7.12.
+
+- Renforce le cycle de vie des téléchargements, les abonnements et l'interface web face aux défaillances inattendues.
+- Respecte le modèle de sortie lors du téléchargement d'une chaîne entière.
+- Ne marque plus un abonnement comme défectueux lorsque toutes les entrées sont filtrées parce qu'elles ont déjà été téléchargées.
+- Corrige l'enregistrement de l'état des téléchargements sur NFS et les autres stockages qui refusent les écritures atomiques, et restreint le fichier d'état aux permissions du seul propriétaire.
+- Actualise les dépendances.
+
+Notes de version complètes : https://github.com/alexta69/metube/releases/tag/2026.07.12`,
   },
   migrations: {
     up: async ({ effects }) => {},
