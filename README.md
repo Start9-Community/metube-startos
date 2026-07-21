@@ -37,7 +37,7 @@ See [instructions.md](instructions.md) for setup and usage.
 
 | Property      | Value                                                              |
 | ------------- | ----------------------------------------------------------------- |
-| Image         | `alexta69/metube:2026.04.28`                                       |
+| Image         | `alexta69/metube`                                                  |
 | Architectures | x86_64, aarch64                                                    |
 | Command       | image entrypoint (`tini` → `docker-entrypoint.sh`)                 |
 | Env           | `PUID=1000`, `PGID=1000`, `PORT=8081`, `DOWNLOAD_DIR`, `TEMP_DIR`, `STATE_DIR` |
@@ -166,7 +166,7 @@ saved download destination and the queue/history are preserved.
 
 | Dependency                  | Optional | Why                                                                                                                                                  |
 | --------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| File Browser (`>=2.63.2:0`) | Yes      | Only when **"Select Download Destination"** targets File Browser. MeTube mounts File Browser's `data` volume read-write and saves downloads there. Declared `kind: 'exists'` — File Browser must be installed (so the volume exists) but need not be running. |
+| File Browser                | Yes      | Only when **"Select Download Destination"** targets File Browser. MeTube mounts File Browser's `data` volume read-write and saves downloads there. Declared `kind: 'exists'` — File Browser must be installed (so the volume exists) but need not be running. |
 
 ---
 
@@ -199,7 +199,7 @@ mounts, and an HTTP basic-auth gate at the StartOS proxy; it does not patch MeTu
 
 ```yaml
 package_id: metube
-image: alexta69/metube:2026.04.28
+image: alexta69/metube
 architectures: [x86_64, aarch64]
 env:
   PUID: 1000
@@ -225,7 +225,6 @@ web_ui_auth:               # MeTube has no login of its own
   enforced_by: interfaces.ts addSsl.auth (basic, realm "MeTube")
 dependencies:
   filebrowser:                     # optional; only while it is the download destination
-    versionRange: '>=2.63.2:0'
     kind: exists                   # must be installed (volume exists); need not be running
     volume_mounted: data -> /mnt/filebrowser (read-write)
 download_destination:              # set via "Select Download Destination" action

@@ -15,7 +15,7 @@ gh release view -R alexta69/metube --json tagName -q '.tagName'
 The current pin lives in `startos/manifest/index.ts`:
 
 ```typescript
-dockerTag: 'alexta69/metube:2026.04.28',
+dockerTag: 'alexta69/metube:2026.06.28',
 ```
 
 ## Applying the bump
