@@ -1,7 +1,7 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '2026.7.21:1',
+  version: '2026.7.21:2',
   releaseNotes: {
     en_US: `Updated MeTube to 2026.7.21.
 
