@@ -9,7 +9,6 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/alexta69/metube',
   marketingUrl: 'https://github.com/alexta69/metube',
   donationUrl: null,
-  docsUrls: ['https://github.com/alexta69/metube/blob/master/README.md'],
   description: { short, long },
   volumes: ['main', 'downloads'],
   images: {
