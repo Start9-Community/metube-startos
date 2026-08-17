@@ -4,15 +4,15 @@
 
 # MeTube on StartOS
 
-> **Upstream repo:** <https://github.com/alexta69/metube>
+> Everything not listed in this document should behave the same as upstream
+> MeTube. If a feature, setting, or behavior is not mentioned here, the upstream
+> documentation is accurate and fully applicable — see the Documentation section
+> of `instructions.md` for links.
 
-MeTube is a self-hosted web UI for [yt-dlp](https://github.com/yt-dlp/yt-dlp) that lets you
-download videos and audio from YouTube, Vimeo, SoundCloud, and hundreds of other sites.
-Paste a URL, pick a format, and your media is saved directly on your server.
+[MeTube](https://github.com/alexta69/metube) is a web front end for yt-dlp: paste a link, pick a format, and it downloads the video or audio to the server. This package adds the login MeTube does not have, and lets downloads land either on its own volume or inside File Browser.
 
-## Getting Started
-
-See [instructions.md](instructions.md) for setup and usage.
+- **Upstream repo:** <https://github.com/alexta69/metube>
+- **Wrapper repo:** <https://github.com/Start9-Community/metube-startos>
 
 ---
 
@@ -20,178 +20,163 @@ See [instructions.md](instructions.md) for setup and usage.
 
 - [Image and Container Runtime](#image-and-container-runtime)
 - [Volume and Data Layout](#volume-and-data-layout)
-- [Installation and First-Run Flow](#installation-and-first-run-flow)
-- [Configuration Management](#configuration-management)
-- [Network Access and Interfaces](#network-access-and-interfaces)
-- [Actions (StartOS UI)](#actions-startos-ui)
-- [Backups and Restore](#backups-and-restore)
-- [Health Checks](#health-checks)
+- [File Models](#file-models)
 - [Dependencies](#dependencies)
+- [Network Access and Interfaces](#network-access-and-interfaces)
+- [Installation and First-Run Flow](#installation-and-first-run-flow)
+- [Actions](#actions)
+- [Tasks](#tasks)
+- [Health Checks](#health-checks)
+- [Backups and Restore](#backups-and-restore)
 - [Limitations and Differences](#limitations-and-differences)
-- [What Is Unchanged from Upstream](#what-is-unchanged-from-upstream)
 - [Quick Reference for AI Consumers](#quick-reference-for-ai-consumers)
 
 ---
 
 ## Image and Container Runtime
 
-| Property      | Value                                                              |
-| ------------- | ----------------------------------------------------------------- |
-| Image         | `alexta69/metube`                                                  |
-| Architectures | x86_64, aarch64                                                    |
-| Command       | image entrypoint (`tini` → `docker-entrypoint.sh`)                 |
-| Env           | `PUID=1000`, `PGID=1000`, `PORT=8081`, `DOWNLOAD_DIR`, `TEMP_DIR`, `STATE_DIR` |
+One upstream image, consumed unmodified.
 
-The image starts as root, then its entrypoint creates and `chown`s the download, temp, and
-state directories to `PUID:PGID` (1000:1000) and drops privileges with `gosu` before
-launching MeTube. Because StartOS does not override the image user, the package relies on
-this entrypoint for directory ownership — there is no separate ownership one-shot.
+| Property      | Value                      |
+| ------------- | -------------------------- |
+| Image         | `alexta69/metube`          |
+| Architectures | x86_64, aarch64            |
+| Command       | The image's own entrypoint |
 
----
+| Subcontainer  | Purpose                                  |
+| ------------- | ---------------------------------------- |
+| `metube-main` | The only daemon — the one to `attach` to |
+
+**The daemon runs with `runAsInit`**, so the image's init is PID 1. MeTube spawns a yt-dlp process per download and ffmpeg behind it; without an init to reap them, those orphans accumulate for the life of the container.
+
+The entrypoint creates and chowns the download, temp, and state directories, then drops privileges — so no ownership oneshot is needed here.
 
 ## Volume and Data Layout
 
-| Volume      | Mount Point  | Purpose                                                      | Backed up |
-| ----------- | ------------ | ----------------------------------------------------------- | --------- |
-| `main`      | `/config`    | StartOS `store.json` + MeTube's queue/history (`STATE_DIR`) | Yes       |
-| `downloads` | `/downloads` | Downloaded media (local destination)                        | No        |
+Two volumes, and only one of them is backed up.
 
-- `STATE_DIR` is pinned to `/config/.metube` (on the `main` volume) so MeTube's download
-  **queue and history** are preserved by backups. By default the image would place state at
-  `/downloads/.metube`; this package overrides that.
-- Downloaded **media** lives on the separate `downloads` volume (local destination) and is
-  intentionally excluded from backups — it is large and re-downloadable.
-- When **File Browser** is the selected destination, File Browser's `data` volume is mounted
-  read-write at `/mnt/filebrowser` and downloads go to `/mnt/filebrowser/<subfolder>`
-  (default subfolder `metube`); the local `downloads` volume is then unused.
+| Volume      | Mount Point  | Purpose                                |
+| ----------- | ------------ | -------------------------------------- |
+| `main`      | `/config`    | The queue, the history, and the store  |
+| `downloads` | `/downloads` | Downloaded media, for the local option |
 
----
+| Path         | Written by | Holds                                    |
+| ------------ | ---------- | ---------------------------------------- |
+| `.metube/`   | MeTube     | The download queue and completed history |
+| `store.json` | Actions    | The password and the destination choice  |
 
-## Installation and First-Run Flow
+**The state directory is pinned onto `main` rather than left at its default**, which is inside the downloads directory. That is what puts the queue and history on a volume that gets backed up, and keeps them out of the media directory the user browses.
 
-MeTube has no login of its own, so the StartOS reverse proxy gates the web UI with HTTP
-basic auth, and the service will not start until a password is set:
+**The temp directory is the download directory**, so partly-downloaded files sit beside finished ones and are cleaned up as each download completes.
 
-1. On install a **critical task** prompts you to run **"Set Web UI Password"**.
-2. Run it — a strong password is generated and shown once (the username is always `admin`).
-   MeTube then starts.
-3. Downloads default to **Local storage**; use **"Select Download Destination"** to change
-   where they are saved.
+## File Models
 
----
+One model, three fields.
 
-## Configuration Management
+| File         | Format | Modelled                | Written by |
+| ------------ | ------ | ----------------------- | ---------- |
+| `store.json` | JSON   | Yes — `FileHelper.json` | Actions    |
 
-MeTube's own options (format, quality, naming) are set in its web UI and persisted in its
-state directory on the `main` volume.
+- **The web UI password**, absent until the action generates it.
+- **The download destination**, `local` or `filebrowser`, defaulting to local so the service works with no setup.
+- **The File Browser subfolder**, kept even while local is selected so switching back restores the previous choice.
 
-### Web UI Access
+All three are read reactively, which is what makes the destination switch take effect: changing it restarts the service, re-mounts, and repoints the download path in one step.
 
-MeTube ships no authentication, so the StartOS reverse proxy enforces HTTP basic auth on the
-entire UI port. The username is always `admin`; the password is generated by the **"Set Web
-UI Password"** action (shown as **"Reset Web UI Password"** once set) and stored in
-`store.json`. `interfaces.ts` reads it reactively so changing it re-applies the gate, and a
-critical task blocks the service from starting until it is set, so the UI is never exposed
-unauthenticated.
-
-### Download Destination (local or File Browser)
-
-The **"Select Download Destination"** action chooses where new downloads are written:
-
-- **Local storage** (default) — saved to the `downloads` volume at `/downloads`.
-- **File Browser** — saved into File Browser's `data` volume so the files are browsable,
-  downloadable, and manageable from File Browser. Pick **File Browser** and choose a
-  subfolder (default `metube`); MeTube mounts File Browser's volume at `/mnt/filebrowser`
-  and points `DOWNLOAD_DIR` at `/mnt/filebrowser/<subfolder>`.
-
-File Browser runs as uid `1000`, the same uid MeTube's `PUID` drops to, so files MeTube
-writes are immediately readable and manageable in File Browser with no ownership fix-ups.
-The choice is stored in `store.json` and read reactively, so saving the action re-mounts (or
-unmounts) File Browser, repoints the save path, and restarts the service. Changing the
-destination affects new downloads only; existing files are not moved.
-
----
-
-## Network Access and Interfaces
-
-| Interface | Port | Protocol | Type | Purpose       |
-| --------- | ---- | -------- | ---- | ------------- |
-| Web UI    | 8081 | HTTP     | `ui` | MeTube web UI |
-
-**Access methods:**
-
-- LAN IP with unique port
-- `<hostname>.local` with unique port
-- Tor `.onion` address (if a Tor interface is added)
-- Custom domains (if configured)
-
-All of these are gated by HTTP basic auth at the StartOS proxy (username `admin`, password
-from the **"Set Web UI Password"** action) — MeTube itself has no login.
-
----
-
-## Actions (StartOS UI)
-
-| Action                      | Description                                                                   |
-| --------------------------- | ----------------------------------------------------------------------------- |
-| Set Web UI Password         | Generate the `admin` password for the web UI (shown as **Reset Web UI Password** once set) |
-| Select Download Destination | Choose where new downloads are saved — local storage or a File Browser subfolder |
-
----
-
-## Backups and Restore
-
-**Included in backup:**
-
-- `main` volume — StartOS `store.json` and MeTube's download queue/history (`/config/.metube`)
-
-**Not included:**
-
-- `downloads` volume — downloaded media files (large, re-downloadable)
-
-**Restore behavior:** The `main` volume is fully restored before the service starts, so the
-saved download destination and the queue/history are preserved.
-
----
-
-## Health Checks
-
-| Check         | Method                | Messages                                                                        |
-| ------------- | --------------------- | ------------------------------------------------------------------------------- |
-| Web Interface | Port listening (8081) | Success: "The web interface is ready" / Error: "The web interface is not ready" |
-
----
+MeTube's own settings — formats, naming, post-processing — are its business and are not modelled here.
 
 ## Dependencies
 
-| Dependency                  | Optional | Why                                                                                                                                                  |
-| --------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| File Browser                | Yes      | Only when **"Select Download Destination"** targets File Browser. MeTube mounts File Browser's `data` volume read-write and saves downloads there. Declared `kind: 'exists'` — File Browser must be installed (so the volume exists) but need not be running. |
+One, optional, and **declared only while it is selected**.
 
----
+| Dependency   | Required            | Kind     | Mounted                                  | Why                      |
+| ------------ | ------------------- | -------- | ---------------------------------------- | ------------------------ |
+| File Browser | No — only if chosen | `exists` | `data`, read-write at `/mnt/filebrowser` | Downloads land inside it |
+
+Choosing File Browser as the destination adds the dependency; choosing local removes it again. Nothing is mounted while the destination is local.
+
+**The dependency is `exists`, not `running`.** MeTube writes into File Browser's volume directly, so File Browser only has to be installed for the files to land in the right place — it has to be running for anyone to browse them.
+
+Files are written as the same uid File Browser serves its volume with, so they are readable and manageable there immediately rather than needing an ownership fix.
+
+## Network Access and Interfaces
+
+One interface.
+
+| Interface | Id   | Type | Port | Description              |
+| --------- | ---- | ---- | ---- | ------------------------ |
+| Web UI    | `ui` | ui   | 8081 | The MeTube web interface |
+
+**MeTube has no login of its own.** The whole interface is gated by HTTP basic auth applied at the StartOS reverse proxy, with the username `admin` and the generated password — the application never learns about it. The gate rides on the interface's TLS address, which is the one StartOS publishes for the LAN.
+
+The gate is configured from the same reactive read as everything else, so setting or rotating the password takes effect without any further action.
+
+## Installation and First-Run Flow
+
+Install leaves the destination at local and raises a `critical` task to generate the web UI password.
+
+**The service cannot start until that password exists**, which is the point: a `critical` task blocks startup, so there is never a window where MeTube is running and reachable with no credential. The check runs on every init, not just install, so clearing the password re-raises it.
+
+Once the password is set the service starts and downloads work immediately. Switching the destination to File Browser is optional and can be done at any time.
+
+## Actions
+
+Two actions.
+
+### Set Web UI Password
+
+Generates the basic-auth password and shows it once. The name changes to **Reset Web UI Password** once one exists.
+
+- **What it changes:** the password in the store, and through it the credential on the interface.
+- **Cost:** the service restarts, since the binding is rebuilt.
+- **Repeat safety:** each run generates a **new** password and invalidates the old one. It is never user-chosen.
+- **Outputs:** the fixed username and the new password.
+
+### Select Download Destination
+
+Chooses between this service's own volume and a folder inside File Browser.
+
+- **What it changes:** the destination, and the subfolder name when File Browser is chosen.
+- **Cost:** the service restarts and the mount changes.
+- **Repeat safety:** idempotent, and pre-filled with the current choice.
+- **What it does not do:** **move anything.** Files already downloaded stay where they were written; only new downloads follow the new destination.
+
+## Tasks
+
+One, and it is reactive.
+
+| Task                | Severity   | Raised when                     | Cleared when    |
+| ------------------- | ---------- | ------------------------------- | --------------- |
+| Set Web UI Password | `critical` | Any init that finds no password | The action runs |
+
+`critical` blocks the service from starting and suspends the ordinary controls, so a fresh install shows the task and nothing else.
+
+## Health Checks
+
+One check, on the only daemon.
+
+| Check     | Displayed as    | Method                 | Grace |
+| --------- | --------------- | ---------------------- | ----- |
+| `primary` | "Web Interface" | Port 8081 is listening | 30s   |
+
+It reports that the interface is serving. **It says nothing about downloads**: a failing yt-dlp, an unreachable site, or a full volume all show a green check and an error against the individual item in the queue.
+
+## Backups and Restore
+
+**Only `main` is backed up** — `sdk.Backups.ofVolumes('main')`. That is the queue, the completed history, the password, and the destination choice.
+
+**Downloaded media is deliberately excluded.** A media library is large, and it is re-downloadable by definition; backing it up would make every backup as big as the collection. Anything worth keeping should be moved off this volume — which is what the File Browser destination is for, since those files then live under File Browser's own backup.
+
+A restored instance comes back with the same password, the same destination, and its history intact, pointing at an empty `downloads` volume unless the destination was File Browser.
 
 ## Limitations and Differences
 
-1. **Download location** — By default downloads persist to `/downloads` on the `downloads`
-   volume and are **not** backed up. The **"Select Download Destination"** action can instead
-   route new downloads into File Browser's `data` volume. Only the queue/history on the
-   `main` volume is included in backups.
-2. **State directory override** — `STATE_DIR` is moved from the image default
-   (`/downloads/.metube`) to `/config/.metube` so the queue and history live on the
-   backed-up `main` volume.
-3. **Runs as uid 1000** — `PUID`/`PGID` are set to `1000` so downloads written into File
-   Browser (uid 1000) need no ownership fix-ups.
-4. **No native auth** — MeTube has no login of its own, so the StartOS proxy enforces HTTP
-   basic auth (username `admin`) and a critical task blocks the service from starting until a
-   password is set via **"Set Web UI Password"**.
-
----
-
-## What Is Unchanged from Upstream
-
-The service is the upstream `alexta69/metube` image, unmodified. The package only sets
-environment variables (`DOWNLOAD_DIR`, `TEMP_DIR`, `STATE_DIR`, `PUID`, `PGID`, `PORT`),
-mounts, and an HTTP basic-auth gate at the StartOS proxy; it does not patch MeTube itself.
+1. **Authentication is the reverse proxy's, not MeTube's.** One shared credential, username always `admin`, password generated rather than chosen.
+2. **Downloaded media is not backed up** when the destination is local.
+3. **Switching destination does not move existing files.**
+4. **The File Browser subfolder is created under File Browser's data volume**, so its contents count against File Browser's backup, not this one.
+5. **MeTube's own settings are not exposed** as actions — formats and naming are set in its interface.
+6. **One destination at a time.** There is no per-download choice.
 
 ---
 
@@ -200,41 +185,32 @@ mounts, and an HTTP basic-auth gate at the StartOS proxy; it does not patch MeTu
 ```yaml
 package_id: metube
 image: alexta69/metube
-architectures: [x86_64, aarch64]
-env:
-  PUID: 1000
-  PGID: 1000
-  PORT: 8081                       # pinned to uiPort
-  DOWNLOAD_DIR: /downloads | /mnt/filebrowser/<subfolder>
-  TEMP_DIR: same as DOWNLOAD_DIR
-  STATE_DIR: /config/.metube       # override of image default /downloads/.metube
+architectures:
+  - x86_64
+  - aarch64
+subcontainers:
+  - metube-main # runAsInit: true, so the image's init reaps yt-dlp/ffmpeg orphans
 volumes:
-  main:
-    /config: store.json + MeTube queue/history (.metube)   # backed up
-  downloads:
-    /downloads: downloaded media (local destination)        # NOT backed up
-interfaces:
-  ui:
-    port: 8081
-    protocol: http
-    type: ui
-    auth: basic            # StartOS proxy gate; username "admin", password = store.uiPassword
-web_ui_auth:               # MeTube has no login of its own
-  action: set-password     # auto-generates; "Set" then "Reset Web UI Password"
-  store_field: uiPassword  # plaintext; critical task blocks startup until set
-  enforced_by: interfaces.ts addSsl.auth (basic, realm "MeTube")
+  main: /config # queue + history (STATE_DIR) and store.json
+  downloads: /downloads # local destination only; not backed up
+file_models:
+  - store.json # uiPassword, downloadDestination, filebrowserSubpath
+startos_managed_env_vars:
+  - PUID
+  - PGID
+  - PORT
+  - DOWNLOAD_DIR
+  - TEMP_DIR
+  - STATE_DIR
 dependencies:
-  filebrowser:                     # optional; only while it is the download destination
-    kind: exists                   # must be installed (volume exists); need not be running
-    volume_mounted: data -> /mnt/filebrowser (read-write)
-download_destination:              # set via "Select Download Destination" action
-  store_fields: { downloadDestination: local|filebrowser, filebrowserSubpath: string }
-  save_path: local -> /downloads ; filebrowser -> /mnt/filebrowser/<subfolder>
-  note: >
-    The image entrypoint mkdir+chowns DOWNLOAD_DIR/TEMP_DIR/STATE_DIR to 1000:1000 and
-    drops privileges via gosu, so no chmod/chown one-shot is needed. File Browser runs as
-    uid 1000, same as MeTube's PUID, so written files are browsable with no ownership fixes.
+  - filebrowser # optional, kind: exists, declared only while it is the destination
+interfaces:
+  ui: { type: ui, port: 8081 } # basic auth at the StartOS proxy, user "admin"
 actions:
-  - setPassword         # set/reset the web UI basic-auth password (admin)
-  - downloadDestination
+  - set-password
+  - download-destination
+tasks:
+  - { action: set-password, severity: critical } # reactive
+health_checks:
+  - primary # displayed "Web Interface"; says nothing about downloads
 ```
