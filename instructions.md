@@ -23,7 +23,8 @@ playlist URL, pick a format and quality, and MeTube downloads the media to your 
 
 MeTube has no built-in login, so access is protected by a password at the StartOS proxy
 (username `admin`). Run **"Set Web UI Password"** (shown as **"Reset Web UI Password"**
-afterward) anytime to generate a new one — it is shown once in the action result, so save it.
+afterward) anytime to generate a new one. Resetting asks for confirmation first, since the
+current password stops working. The new one is shown once in the action result, so save it.
 A lost password can't be recovered; just reset it.
 
 ## Where downloads are saved
@@ -41,11 +42,17 @@ new downloads go with the **"Select Download Destination"** action:
 
 1. Install and start **NextExplorer** or **FileBrowser Quantum** first.
 2. Run the **"Select Download Destination"** action on MeTube.
-3. Choose the service and (optionally) change the subfolder. For NextExplorer the subfolder
-   starts with the drive name (default `Files/metube`); for FileBrowser Quantum it is relative
-   to the storage root (default `metube`).
+3. Choose the service and (optionally) change the subfolder. For FileBrowser Quantum it is
+   relative to the storage root (default `metube`). For NextExplorer the first folder is a
+   NextExplorer location (default `Files/metube`, in the `Files` location); if that location
+   does not exist, MeTube adds it to NextExplorer for you. NextExplorer needs to be version
+   3.1.0:2 or later.
 4. MeTube now saves there at that subfolder. The folder appears in that service
    automatically, and new downloads show up there as they complete.
+
+If NextExplorer isn't installed, is older than 3.1.0:2, or refuses the location name, the
+action says so and keeps your previous destination. A subfolder can't start with `/` or
+contain a `..` folder.
 
 To go back, run the action again and choose **Local storage**.
 

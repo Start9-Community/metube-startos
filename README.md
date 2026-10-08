@@ -49,7 +49,7 @@ One upstream image, consumed unmodified.
 
 **The daemon runs with `runAsInit`**, so the image's init is PID 1. MeTube spawns a yt-dlp process per download and ffmpeg behind it; without an init to reap them, those orphans accumulate for the life of the container.
 
-The entrypoint creates and chowns the download, temp, and state directories, then drops privileges — so no ownership oneshot is needed here.
+The entrypoint creates and chowns the download, temp, and state directories (not their parents), then drops privileges. The one oneshot, `nextexplorer-location`, runs only while NextExplorer is the destination (see Dependencies); it shares the `metube-main` subcontainer.
 
 ## Volume and Data Layout
 
@@ -71,7 +71,7 @@ Two volumes, and only one of them is backed up.
 
 ## File Models
 
-One model, three fields.
+One model, four fields.
 
 | File         | Format | Modelled                | Written by |
 | ------------ | ------ | ----------------------- | ---------- |
@@ -79,7 +79,7 @@ One model, three fields.
 
 - **The web UI password**, absent until the action generates it.
 - **The download destination**, `local`, `nextexplorer` or `filebrowser`, defaulting to local so the service works with no setup.
-- **The NextExplorer and FileBrowser Quantum subfolders**, kept even while unselected so switching back restores the previous choice. NextExplorer's starts with the drive name, `Files/metube` by default.
+- **The NextExplorer and FileBrowser Quantum subfolders**, kept even while unselected so switching back restores the previous choice. NextExplorer's starts with one of its locations, `Files/metube` by default.
 
 All four are read reactively, which is what makes the destination switch take effect: changing it restarts the service, re-mounts, and repoints the download path in one step.
 
@@ -87,14 +87,20 @@ MeTube's own settings — formats, naming, post-processing — are its business 
 
 ## Dependencies
 
-Two, both optional, and **declared only while selected**.
+Two, both optional, and **enabled only while selected**.
 
 | Dependency          | Required            | Kind     | Mounted                                   | Why                      |
 | ------------------- | ------------------- | -------- | ----------------------------------------- | ------------------------ |
 | NextExplorer        | No — only if chosen | `exists` | `data`, read-write at `/mnt/nextexplorer` | Downloads land inside it |
 | FileBrowser Quantum | No — only if chosen | `exists` | `data`, read-write at `/mnt/filebrowser`  | Downloads land inside it |
 
-Choosing a service as the destination adds its dependency; choosing local removes it again. Nothing is mounted while the destination is local.
+Choosing a service as the destination enables its dependency; choosing local disables it again. Nothing is mounted while the destination is local.
+
+**The `filebrowser` range takes both lines that use that id** — `>=2.63.18:3 || >=#quantum:1.5.2:0`, File Browser and its `#quantum` flavor. Both serve their `data` volume as uid 1000.
+
+**The first folder of the NextExplorer subfolder is a NextExplorer location, and NextExplorer creates it.** Each top-level directory of NextExplorer's `data` volume is a location. When NextExplorer is chosen, Select Download Destination declares the dependency and runs NextExplorer's `add-location` for that folder (`access: 'dependent'`; an existing location is a success for a service caller) before it writes the store, so the new location exists, owned by uid 1000, before the service restarts into it. That is why the range is `>=3.1.0:2`, the first release with a dependent-callable `add-location`. The action refuses the choice, keeping the previous one, if NextExplorer is not installed, is older, or rejects the name. `add-location` runs only from the action: its form and run must share an event id, which an init or `main` does not have.
+
+**A `nextexplorer-location` oneshot runs before the daemon** while NextExplorer is the destination: `install -d -o 1000 -g 1000` on the location. It covers a stored location that no longer exists (removed in NextExplorer, or never added by an older release), which the image's `mkdir -p` would otherwise create as root.
 
 **The dependency is `exists`, not `running`.** MeTube writes into the service's volume directly, so it only has to be installed for the files to land in the right place — it has to be running for anyone to browse them.
 
@@ -130,14 +136,15 @@ Generates the basic-auth password and shows it once. The name changes to **Reset
 
 - **What it changes:** the password in the store, and through it the credential on the interface.
 - **Cost:** the service restarts, since the binding is rebuilt.
-- **Repeat safety:** each run generates a **new** password and invalidates the old one. It is never user-chosen.
+- **Repeat safety:** each run generates a **new** password and invalidates the old one. It is never user-chosen. Once a password exists, the action asks for confirmation before it runs.
 - **Outputs:** the fixed username and the new password.
 
 ### Select Download Destination
 
 Chooses between this service's own volume and a folder inside NextExplorer or FileBrowser Quantum.
 
-- **What it changes:** the destination, and the subfolder name when a service is chosen.
+- **What it changes:** the destination, and the subfolder name when a service is chosen. For NextExplorer, the subfolder's first folder becomes a NextExplorer location if it is missing, and the action fails without saving if NextExplorer is missing, too old, or refuses the name (see Dependencies).
+- **Input rules:** neither subfolder may start with `/` or contain a `..` folder. NextExplorer's first folder follows NextExplorer's own location-name rules: no leading dot or space, no trailing space, and not `_users`, `personal`, `share` or `volumes` in any case.
 - **Cost:** the service restarts and the mount changes.
 - **Repeat safety:** idempotent, and pre-filled with the current choice.
 - **What it does not do:** **move anything.** Files already downloaded stay where they were written; only new downloads follow the new destination.
@@ -204,8 +211,8 @@ startos_managed_env_vars:
   - TEMP_DIR
   - STATE_DIR
 dependencies:
-  - nextexplorer # optional, kind: exists, declared only while it is the destination
-  - filebrowser # optional, kind: exists, declared only while it is the destination
+  - nextexplorer # optional, kind: exists, '>=3.1.0:2', enabled only while it is the destination; download-destination runs its add-location
+  - filebrowser # optional, kind: exists, '>=2.63.18:3 || >=#quantum:1.5.2:0', enabled only while it is the destination
 interfaces:
   ui: { type: ui, port: 8081 } # basic auth at the StartOS proxy, user "admin"
 actions:

@@ -24,7 +24,11 @@ export const setPassword = sdk.Action.withoutInput(
       description: i18n(
         'Generate the password for the MeTube web UI. The username is always "admin". Running this again generates a new password.',
       ),
-      warning: null,
+      warning: alreadySet
+        ? i18n(
+            'The current web UI password stops working, and anyone using MeTube must sign in again with the new one.',
+          )
+        : null,
       allowedStatuses: 'any',
       group: null,
       visibility: 'enabled',
@@ -37,15 +41,16 @@ export const setPassword = sdk.Action.withoutInput(
 
     return {
       version: '1' as const,
-      title: 'Web UI Password Set',
-      message:
+      title: i18n('Web UI Password Set'),
+      message: i18n(
         'Use these credentials to sign in to the MeTube web UI. Save the password now — running this action again generates a new one.',
+      ),
       result: {
         type: 'group' as const,
         value: [
           {
             type: 'single' as const,
-            name: 'Username',
+            name: i18n('Username'),
             description: null,
             value: uiUsername,
             masked: false,
@@ -54,7 +59,7 @@ export const setPassword = sdk.Action.withoutInput(
           },
           {
             type: 'single' as const,
-            name: 'Password',
+            name: i18n('Password'),
             description: null,
             value: password,
             masked: true,

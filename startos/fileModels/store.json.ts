@@ -7,11 +7,11 @@ import { sdk } from '../sdk'
 // Destination" action; read reactively in main.ts + dependencies.ts so changing
 // it restarts the service and re-mounts. Defaults to 'local' so MeTube works out
 // of the box with no first-run setup.
-const shape = z.object({
+const shape = z.looseObject({
   downloadDestination: z
     .enum(['local', 'nextexplorer', 'filebrowser'])
     .catch('local'),
-  // Subfolder inside NextExplorer's volume, starting with the drive name.
+  // Subfolder inside NextExplorer's volume, starting with one of its locations.
   nextexplorerSubpath: z.string().catch('Files/metube'),
   // Subfolder inside FileBrowser Quantum's volume to save into (ignored when local).
   filebrowserSubpath: z.string().catch('metube'),
