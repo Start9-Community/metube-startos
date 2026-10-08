@@ -18,15 +18,23 @@ Freshly scaffolded? Work the
 guide page, not a file in this repo — read it, don't copy it in.
 
 Keep `README.md` (technical reference for an AI support or administering agent) and
-`instructions.md` (end-user docs) in sync with your changes.
+`instructions.md` (end-user docs) in sync with your changes. This file restates neither:
+whoever changes the package has both, so it carries only what they don't — repo mechanics,
+a change that looks right and is not, where the next thing gets added, a naming trap, a
+build or test invocation particular to this repo.
 
-**Bugs and feature requests are GitHub issues on this repo** — file them as you find them.
+**Fix a defect you spot rather than reporting it** — you have the package open and the
+context to be sure. File **a GitHub issue on this repo** only when the call isn't yours to
+make: you can't pin the cause down, two defensible fixes exist, or it's too large to ride on
+the work in hand. An open issue is a report, not a queue — implement one when you're asked
+to or when it's labelled `Approved`, then close it with `Closes #<n>`.
+
 Don't record work in the repo instead: no `TODO.md`, no `NOTES.md`, no `PLAN.md`. What you
 verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
-- **MeTube ships no authentication**, so the only gate is basic auth on the binding in `interfaces.ts`, keyed by a password the `set-password` action generates. `init/watchPassword.ts` raises a `critical` task whenever that password is absent, which is what guarantees the UI never runs ungated — don't downgrade it to `important` or make it install-only.
-- **`PUID`/`PGID` are 1000 to match FileBrowser Quantum's uid**, so files MeTube writes into FileBrowser Quantum's volume are usable there without a chown oneshot. Changing them breaks that.
-- **`STATE_DIR` is pinned to `/config/.metube`.** The image default puts it under the downloads directory, which would leave the queue and history off the backup and inside the user's media folder.
-- **`runAsInit: true` is required.** Each download spawns yt-dlp and ffmpeg; with no init as PID 1 those orphans are never reaped.
+- **Keep the Set Web UI Password task `critical` and raised on every init** (`init/watchPassword.ts`) — it is the only thing that stops MeTube running with no basic-auth gate.
+- **Keep `PUID`/`PGID` at 1000** — NextExplorer and FileBrowser serve their `data` volumes as that uid.
+- **Keep `STATE_DIR` on `/config`** — the image default puts the queue and history under the downloads directory, off the backup.
+- **Keep `runAsInit: true`** — without the image's init as PID 1, yt-dlp and ffmpeg orphans are never reaped.

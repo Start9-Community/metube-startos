@@ -1,63 +1,38 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '2026.8.28:1',
+  version: '2026.8.28:2',
   releaseNotes: {
-    en_US: `Downloads can now be saved into **NextExplorer**, the recommended file server, from **Select Download Destination**; the subfolder starts with the drive name, e.g. Files/metube.
-
-Updated MeTube to 2026.8.28.
-
-- Upgrades yt-dlp from 2026.7.4 to 2026.8.19, fixing extraction failures against sites that had moved past the previously-bundled version.
-- Adds a first-class SponsorBlock toggle, and carries it into subscriptions.
-- Adds retry for failed downloads, and lets a subscription's clip bounds, download folder, and name be edited after creation.
-- Fixes the PO token provider path, IPv6 dual-stack binding, and a proxy configuration bug that blocked connections to internal addresses.
-- Picks up the maintenance releases published through 2026.08.28, plus dependency refreshes (including an Angular 22.1 frontend upgrade).
-
-Full release notes: https://github.com/alexta69/metube/releases/tag/2026.08.28`,
-    es_ES: `Las descargas ahora pueden guardarse en **NextExplorer**, el servidor de archivos recomendado, desde **Seleccionar destino de descarga**; la subcarpeta empieza por el nombre de la unidad, p. ej. Files/metube.
-
-Actualiza MeTube a 2026.8.28.
-
-- Actualiza yt-dlp de 2026.7.4 a 2026.8.19, corrigiendo fallos de extracción en sitios que habían avanzado más allá de la versión incluida anteriormente.
-- Añade un interruptor de SponsorBlock de primera clase y lo traslada a las suscripciones.
-- Añade reintentos para las descargas fallidas y permite editar los límites de clip, la carpeta de descarga y el nombre de una suscripción tras crearla.
-- Corrige la ruta del proveedor de tokens PO, el enlace de doble pila IPv6 y un error de configuración de proxy que bloqueaba las conexiones a direcciones internas.
-- Incorpora las versiones de mantenimiento publicadas hasta el 2026.08.28, además de actualizaciones de dependencias (incluida una actualización del frontend a Angular 22.1).
-
-Notas de la versión completas: https://github.com/alexta69/metube/releases/tag/2026.08.28`,
-    de_DE: `Downloads können jetzt über **Download-Ziel auswählen** in **NextExplorer** gespeichert werden, dem empfohlenen Dateiserver; der Unterordner beginnt mit dem Laufwerksnamen, z. B. Files/metube.
-
-Aktualisiert MeTube auf 2026.8.28.
-
-- Aktualisiert yt-dlp von 2026.7.4 auf 2026.8.19 und behebt damit Extraktionsfehler bei Seiten, die über die zuvor gebündelte Version hinaus aktualisiert wurden.
-- Fügt einen vollwertigen SponsorBlock-Schalter hinzu und überträgt ihn auch auf Abonnements.
-- Fügt eine Wiederholung für fehlgeschlagene Downloads hinzu und erlaubt es, Clip-Grenzen, Download-Ordner und Namen eines Abonnements nachträglich zu bearbeiten.
-- Behebt den Pfad des PO-Token-Anbieters, die IPv6-Dual-Stack-Bindung und einen Proxy-Konfigurationsfehler, der Verbindungen zu internen Adressen blockierte.
-- Übernimmt die bis zum 28.08.2026 veröffentlichten Wartungsversionen sowie aktualisierte Abhängigkeiten (einschließlich eines Frontend-Upgrades auf Angular 22.1).
-
-Vollständige Versionshinweise: https://github.com/alexta69/metube/releases/tag/2026.08.28`,
-    pl_PL: `Pobrane pliki można teraz zapisywać w **NextExplorer**, zalecanym serwerze plików, w **Wybierz miejsce docelowe pobierania**; podfolder zaczyna się od nazwy dysku, np. Files/metube.
-
-Aktualizuje MeTube do 2026.8.28.
-
-- Aktualizuje yt-dlp z 2026.7.4 do 2026.8.19, naprawiając błędy ekstrakcji na stronach, które zmieniły się od czasu poprzednio dołączonej wersji.
-- Dodaje pełnoprawny przełącznik SponsorBlock i przenosi go również do subskrypcji.
-- Dodaje ponawianie nieudanych pobrań oraz umożliwia edycję granic klipu, folderu pobierania i nazwy subskrypcji po jej utworzeniu.
-- Naprawia ścieżkę dostawcy tokenów PO, wiązanie dwustosowe IPv6 oraz błąd konfiguracji proxy blokujący połączenia z adresami wewnętrznymi.
-- Obejmuje wydania konserwacyjne opublikowane do 28.08.2026 oraz odświeżone zależności (w tym aktualizację frontendu do Angular 22.1).
-
-Pełne informacje o wydaniu: https://github.com/alexta69/metube/releases/tag/2026.08.28`,
-    fr_FR: `Les téléchargements peuvent désormais être enregistrés dans **NextExplorer**, le serveur de fichiers recommandé, depuis **Sélectionner la destination des téléchargements** ; le sous-dossier commence par le nom du lecteur, p. ex. Files/metube.
-
-Met à jour MeTube vers 2026.8.28.
-
-- Fait passer yt-dlp de 2026.7.4 à 2026.8.19, corrigeant des échecs d'extraction sur des sites ayant évolué au-delà de la version précédemment intégrée.
-- Ajoute un véritable interrupteur SponsorBlock, également répercuté sur les abonnements.
-- Ajoute la reprise des téléchargements échoués et permet de modifier les bornes de clip, le dossier de téléchargement et le nom d'un abonnement après sa création.
-- Corrige le chemin du fournisseur de jetons PO, la liaison double pile IPv6 et un bug de configuration du proxy qui bloquait les connexions vers des adresses internes.
-- Intègre les versions de maintenance publiées jusqu'au 28/08/2026, ainsi que des mises à jour de dépendances (dont une mise à niveau du frontend vers Angular 22.1).
-
-Notes de version complètes : https://github.com/alexta69/metube/releases/tag/2026.08.28`,
+    en_US: `- Reset Web UI Password asks for confirmation before it replaces the existing password, and says that the current password stops working.
+- Select Download Destination explains each destination, and that files already downloaded stay where they are.
+- Saving downloads into FileBrowser Quantum works when FileBrowser Quantum is installed, not only the older File Browser.
+- The Web UI Password result is shown in your language.
+- Choosing NextExplorer as the destination adds the subfolder's first folder to NextExplorer as a location if it is missing. The choice is refused, and the previous one kept, if NextExplorer is not installed, is older than 3.1.0:2, or rejects the name.
+- The subfolder fields refuse a path that starts with a slash or contains a .. folder.`,
+    es_ES: `- Restablecer contraseña de la interfaz web pide confirmación antes de reemplazar la contraseña existente e indica que la contraseña actual deja de funcionar.
+- Seleccionar destino de descarga explica cada destino y que los archivos ya descargados se quedan donde están.
+- Guardar las descargas en FileBrowser Quantum funciona cuando FileBrowser Quantum está instalado, no solo con el antiguo File Browser.
+- El resultado de la contraseña de la interfaz web se muestra en tu idioma.
+- Elegir NextExplorer como destino añade la primera carpeta de la subcarpeta a NextExplorer como ubicación si falta. La elección se rechaza, y se mantiene la anterior, si NextExplorer no está instalado, es anterior a 3.1.0:2 o rechaza el nombre.
+- Los campos de subcarpeta rechazan una ruta que empiece por una barra o contenga una carpeta ..`,
+    de_DE: `- „Web-UI-Passwort zurücksetzen“ fragt vor dem Ersetzen des vorhandenen Passworts nach einer Bestätigung und weist darauf hin, dass das aktuelle Passwort danach nicht mehr funktioniert.
+- „Download-Ziel auswählen“ erklärt jedes Ziel und dass bereits heruntergeladene Dateien bleiben, wo sie sind.
+- Das Speichern von Downloads in FileBrowser Quantum funktioniert, wenn FileBrowser Quantum installiert ist, nicht nur mit dem älteren File Browser.
+- Das Ergebnis zum Web-UI-Passwort wird in Ihrer Sprache angezeigt.
+- Wird NextExplorer als Ziel gewählt, fügt MeTube den ersten Ordner des Unterordners in NextExplorer als Standort hinzu, falls er fehlt. Die Auswahl wird abgelehnt und die bisherige bleibt bestehen, wenn NextExplorer nicht installiert ist, älter als 3.1.0:2 ist oder den Namen ablehnt.
+- Die Unterordner-Felder lehnen einen Pfad ab, der mit einem Schrägstrich beginnt oder einen Ordner .. enthält.`,
+    pl_PL: `- „Zresetuj hasło interfejsu webowego” prosi o potwierdzenie przed zastąpieniem istniejącego hasła i informuje, że obecne hasło przestanie działać.
+- „Wybierz miejsce docelowe pobierania” wyjaśnia każde miejsce docelowe oraz to, że już pobrane pliki pozostają tam, gdzie są.
+- Zapisywanie pobranych plików w FileBrowser Quantum działa, gdy zainstalowany jest FileBrowser Quantum, a nie tylko starszy File Browser.
+- Wynik akcji hasła interfejsu webowego jest wyświetlany w Twoim języku.
+- Wybranie NextExplorer jako miejsca docelowego dodaje pierwszy folder podfolderu do NextExplorer jako lokalizację, jeśli jej brakuje. Wybór zostaje odrzucony, a poprzedni pozostaje, jeśli NextExplorer nie jest zainstalowany, jest starszy niż 3.1.0:2 lub odrzuca nazwę.
+- Pola podfolderu odrzucają ścieżkę zaczynającą się od ukośnika lub zawierającą folder ..`,
+    fr_FR: `- Réinitialiser le mot de passe de l'interface web demande une confirmation avant de remplacer le mot de passe existant, et indique que le mot de passe actuel cesse de fonctionner.
+- Sélectionner la destination des téléchargements explique chaque destination, et que les fichiers déjà téléchargés restent où ils sont.
+- L'enregistrement des téléchargements dans FileBrowser Quantum fonctionne lorsque FileBrowser Quantum est installé, et pas seulement avec l'ancien File Browser.
+- Le résultat du mot de passe de l'interface web s'affiche dans votre langue.
+- Choisir NextExplorer comme destination ajoute le premier dossier du sous-dossier à NextExplorer comme emplacement s’il manque. Le choix est refusé, et le précédent conservé, si NextExplorer n’est pas installé, est antérieur à 3.1.0:2 ou refuse le nom.
+- Les champs de sous-dossier refusent un chemin qui commence par une barre oblique ou contient un dossier ..`,
   },
   migrations: {
     up: async ({ effects }) => {},

@@ -3,7 +3,13 @@ import { manifest as nextexplorerManifest } from 'nextexplorer-startos/startos/m
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { filebrowserMountpoint, nextexplorerMountpoint, uiPort } from './utils'
+import {
+  filebrowserMountpoint,
+  locationOf,
+  nextexplorerMountpoint,
+  trimSlashes,
+  uiPort,
+} from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting MeTube'))
@@ -39,11 +45,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // that volume as uid 1000 — the same uid MeTube's PUID drops to — so files
   // MeTube writes are immediately readable and manageable there.
   let downloadDir = '/downloads'
+  let nextexplorerLocation: string | null = null
   if (downloadDestination === 'nextexplorer') {
-    const subfolder =
-      (nextexplorerSubpath ?? 'Files/metube').replace(/^\/+|\/+$/g, '') ||
-      'Files/metube'
+    const subfolder = trimSlashes(nextexplorerSubpath ?? '') || 'Files/metube'
     downloadDir = `${nextexplorerMountpoint}/${subfolder}`
+    nextexplorerLocation = `${nextexplorerMountpoint}/${locationOf(subfolder)}`
     mounts = mounts.mountDependency<typeof nextexplorerManifest>({
       dependencyId: 'nextexplorer',
       volumeId: 'data',
@@ -53,8 +59,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     })
   }
   if (downloadDestination === 'filebrowser') {
-    const subfolder =
-      (filebrowserSubpath ?? 'metube').replace(/^\/+|\/+$/g, '') || 'metube'
+    const subfolder = trimSlashes(filebrowserSubpath ?? '') || 'metube'
     downloadDir = `${filebrowserMountpoint}/${subfolder}`
     mounts = mounts.mountDependency<typeof filebrowserManifest>({
       dependencyId: 'filebrowser',
@@ -65,21 +70,43 @@ export const main = sdk.setupMain(async ({ effects }) => {
     })
   }
 
-  return sdk.Daemons.of(effects).addDaemon('primary', {
-    subcontainer: sdk.SubContainer.of(
-      effects,
-      { imageId: 'metube' },
-      mounts,
-      'metube-main',
-    ),
+  const subcontainer = sdk.SubContainer.of(
+    effects,
+    { imageId: 'metube' },
+    mounts,
+    'metube-main',
+  )
+  const daemons = sdk.Daemons.of(effects)
+
+  // The entrypoint's mkdir -p would create a missing location (removed in NextExplorer, or never added) as root.
+  return (
+    nextexplorerLocation
+      ? daemons.addOneshot('nextexplorer-location', {
+          subcontainer,
+          exec: {
+            command: [
+              'install',
+              '-d',
+              '-o',
+              '1000',
+              '-g',
+              '1000',
+              nextexplorerLocation,
+            ],
+            user: 'root',
+          },
+          requires: [],
+        })
+      : daemons
+  ).addDaemon('primary', {
+    subcontainer,
     exec: {
       command: sdk.useEntrypoint(),
       // runAsInit so the image's tini is PID 1 and reaps zombies — MeTube spawns
       // yt-dlp/ffmpeg subprocesses, and without an init those orphans leak.
       runAsInit: true,
       // The image entrypoint creates and chowns DOWNLOAD_DIR/TEMP_DIR/STATE_DIR
-      // to PUID:PGID then drops privileges with gosu, so no ownership one-shot is
-      // needed. PUID/PGID = 1000 match FileBrowser Quantum's uid. STATE_DIR is pinned to
+      // (not their parents) to PUID:PGID then drops privileges with gosu. PUID/PGID = 1000 match FileBrowser Quantum's uid. STATE_DIR is pinned to
       // the `main` volume (not the image default /downloads/.metube) so MeTube's
       // queue/history are included in backups. PORT pins MeTube's listen port to
       // the interface + health check.
@@ -101,6 +128,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
         }),
       gracePeriod: 30_000,
     },
-    requires: [],
+    requires: nextexplorerLocation ? ['nextexplorer-location'] : [],
   })
 })
