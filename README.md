@@ -96,8 +96,6 @@ Two, both optional, and **enabled only while selected**.
 
 Choosing a service as the destination enables its dependency; choosing local disables it again. Nothing is mounted while the destination is local.
 
-**The `filebrowser` range takes both lines that use that id** — `>=2.63.18:3 || >=#quantum:1.5.2:0`, File Browser and its `#quantum` flavor. Both serve their `data` volume as uid 1000.
-
 **The first folder of the NextExplorer subfolder is a NextExplorer location, and NextExplorer creates it.** Each top-level directory of NextExplorer's `data` volume is a location. When NextExplorer is chosen, Select Download Destination declares the dependency and runs NextExplorer's `add-location` for that folder (`access: 'dependent'`; an existing location is a success for a service caller) before it writes the store, so the new location exists, owned by uid 1000, before the service restarts into it. That is why the range is `>=3.1.0:2`, the first release with a dependent-callable `add-location`. The action refuses the choice, keeping the previous one, if NextExplorer is not installed, is older, or rejects the name. `add-location` runs only from the action: its form and run must share an event id, which an init or `main` does not have.
 
 **A `nextexplorer-location` oneshot runs before the daemon** while NextExplorer is the destination: `install -d -o 1000 -g 1000` on the location. It covers a stored location that no longer exists (removed in NextExplorer, or never added by an older release), which the image's `mkdir -p` would otherwise create as root.
@@ -212,7 +210,7 @@ startos_managed_env_vars:
   - STATE_DIR
 dependencies:
   - nextexplorer # optional, kind: exists, '>=3.1.0:2', enabled only while it is the destination; download-destination runs its add-location
-  - filebrowser # optional, kind: exists, '>=2.63.18:3 || >=#quantum:1.5.2:0', enabled only while it is the destination
+  - filebrowser # optional, kind: exists, '>=2.63.18:3', enabled only while it is the destination
 interfaces:
   ui: { type: ui, port: 8081 } # basic auth at the StartOS proxy, user "admin"
 actions:
