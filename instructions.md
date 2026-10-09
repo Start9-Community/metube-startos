@@ -71,5 +71,9 @@ Notes:
   are included in backups. The downloaded **media files** are not backed up — they are
   large and can be re-downloaded. If you want your media included in a wider backup
   strategy, save downloads into NextExplorer or FileBrowser Quantum and back that up.
+- **Bookmarklets and browser extensions**: MeTube blocks submissions sent from another
+  website's origin. Bookmarklets running on other sites, and extensions submitting as
+  those sites, cannot add downloads. Paste links into MeTube's own Web UI instead.
+  This package has no setting to allow other origins.
 - **Supported sites and formats**: MeTube is a front-end for yt-dlp; the sites, formats,
   and quality options it supports are whatever yt-dlp supports. See the upstream README.
