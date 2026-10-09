@@ -183,6 +183,7 @@ A restored instance comes back with the same password, the same destination, and
 4. **The NextExplorer or FileBrowser Quantum subfolder is created under that service's data volume**, so its contents count against its backup, not this one.
 5. **MeTube's own settings are not exposed** as actions — formats and naming are set in its interface.
 6. **One destination at a time.** There is no per-download choice.
+7. **Cross-site browser integrations are restricted.** MeTube blocks state-changing browser requests and Socket.IO connections from other origins. Bookmarklets running on another site, and extensions sending requests with that site's origin, cannot submit links. Use MeTube's own UI instead. The package does not expose upstream's `CORS_ALLOWED_ORIGINS` allowlist; clients sending neither `Origin` nor `Sec-Fetch-Site` are unaffected by this guard.
 
 ---
 
