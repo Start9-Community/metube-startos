@@ -13,7 +13,9 @@ export const manifest = setupManifest({
   volumes: ['main', 'downloads'],
   images: {
     metube: {
-      source: { dockerTag: 'alexta69/metube:2026.10.20' },
+      source: {
+        dockerBuild: { buildArgs: { IMAGE: 'alexta69/metube:2026.10.20' } },
+      },
       arch: ['x86_64', 'aarch64'],
     },
   },
