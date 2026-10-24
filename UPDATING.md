@@ -12,15 +12,16 @@ gh release view -R alexta69/metube --json tagName -q '.tagName'
 
 (or browse the [Docker Hub tags](https://hub.docker.com/r/alexta69/metube/tags)).
 
-The current pin lives in `startos/manifest/index.ts`:
+The current pin lives in `startos/manifest/index.ts`, as the `IMAGE` build arg of the
+root `Dockerfile`, which layers a CA-store refresh on top of the image:
 
 ```typescript
-dockerTag: 'alexta69/metube:2026.10.20',
+dockerBuild: { buildArgs: { IMAGE: 'alexta69/metube:2026.10.20' } },
 ```
 
 ## Applying the bump
 
-1. Edit `startos/manifest/index.ts` — update `dockerTag` to the new tag, e.g.
+1. Edit `startos/manifest/index.ts` — update the `IMAGE` build arg to the new tag, e.g.
    `alexta69/metube:2026.05.12`.
 2. Edit `startos/versions/current.ts` — update the version string and release notes.
    **Note the format difference:** the Docker tag is zero-padded (`2026.05.12`) but the
