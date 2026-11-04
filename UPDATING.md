@@ -23,12 +23,7 @@ dockerBuild: { buildArgs: { IMAGE: 'alexta69/metube:2026.10.20' } },
 
 1. Edit `startos/manifest/index.ts` — update the `IMAGE` build arg to the new tag, e.g.
    `alexta69/metube:2026.05.12`.
-2. Edit `startos/versions/current.ts` — update the version string and release notes.
+2. Edit `startos/versions/current.ts` — update the version string.
    **Note the format difference:** the Docker tag is zero-padded (`2026.05.12`) but the
-   StartOS (ExVer) version drops leading zeros (`2026.5.12:0`). The trailing `:0` is the
-   StartOS package revision — bump it (e.g. `:1`) for packaging-only changes that reuse
-   the same upstream version.
-3. If the bump carries migration logic, create a new version file instead of editing
-   `current.ts` (see the [Versions](https://docs.start9.com/packaging) guidance).
-4. Update `UPDATING.md` and `README.md` where the version number is referenced.
-5. Build and test: `npm ci && make`
+   StartOS (ExVer) version drops leading zeros (`2026.5.12:0`).
+3. Update `UPDATING.md` and `README.md` where the version number is referenced.
