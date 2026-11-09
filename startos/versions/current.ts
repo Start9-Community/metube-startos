@@ -1,13 +1,18 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '2026.10.20:1',
+  version: '2026.10.20:2',
   releaseNotes: {
-    en_US: `- Stops trusting certificates from a compromised certificate authority (eMudhra).`,
-    es_ES: `- Deja de confiar en los certificados de una autoridad de certificación comprometida (eMudhra).`,
-    de_DE: `- Vertraut Zertifikaten einer kompromittierten Zertifizierungsstelle (eMudhra) nicht mehr.`,
-    pl_PL: `- Przestaje ufać certyfikatom przejętego urzędu certyfikacji (eMudhra).`,
-    fr_FR: `- Ne fait plus confiance aux certificats d'une autorité de certification compromise (eMudhra).`,
+    en_US: `- Requires StartOS 0.4.1 or later.
+- FileBrowser integration now requires FileBrowser Quantum 2.0.2-stable:3 or later; the original File Browser is no longer supported. If you use the original File Browser, switch it in the Marketplace: open File Browser, then under Alternative Implementations choose FileBrowser Quantum and select Switch. Your files and accounts carry over, but back up File Browser first; afterwards, re-apply per-user folder restrictions and access rules, and recreate share links.`,
+    es_ES: `- Requiere StartOS 0.4.1 o posterior.
+- La integración con FileBrowser ahora requiere FileBrowser Quantum 2.0.2-stable:3 o posterior; el File Browser original ya no es compatible. Si usas el File Browser original, cámbialo en el Mercado: abre File Browser y, en Implementaciones alternativas, elige FileBrowser Quantum y selecciona Cambiar. Tus archivos y cuentas se conservan, pero haz antes una copia de seguridad de File Browser; después, vuelve a aplicar las restricciones de carpeta por usuario y las reglas de acceso, y crea de nuevo los enlaces compartidos.`,
+    de_DE: `- Erfordert StartOS 0.4.1 oder neuer.
+- Die FileBrowser-Integration erfordert jetzt FileBrowser Quantum 2.0.2-stable:3 oder neuer; der ursprüngliche File Browser wird nicht mehr unterstützt. Wenn Sie den ursprünglichen File Browser verwenden, wechseln Sie im Marktplatz: Öffnen Sie File Browser, wählen Sie unter Alternative Implementierungen FileBrowser Quantum und anschließend Wechseln. Ihre Dateien und Konten bleiben erhalten, aber sichern Sie File Browser vorher; richten Sie danach benutzerbezogene Ordnerbeschränkungen und Zugriffsregeln erneut ein und erstellen Sie Freigabelinks neu.`,
+    pl_PL: `- Wymaga StartOS 0.4.1 lub nowszego.
+- Integracja z FileBrowser wymaga teraz FileBrowser Quantum 2.0.2-stable:3 lub nowszego; oryginalny File Browser nie jest już obsługiwany. Jeśli używasz oryginalnego File Browser, przełącz go w Sklepie: otwórz File Browser, w sekcji Alternatywne implementacje wybierz FileBrowser Quantum i kliknij Przełącz. Twoje pliki i konta zostaną zachowane, ale najpierw wykonaj kopię zapasową File Browser; potem ponownie ustaw ograniczenia folderów przypisane do użytkowników i reguły dostępu oraz utwórz nowe linki udostępniania.`,
+    fr_FR: `- Nécessite StartOS 0.4.1 ou une version ultérieure.
+- L'intégration FileBrowser nécessite désormais FileBrowser Quantum 2.0.2-stable:3 ou une version ultérieure ; le File Browser d'origine n'est plus pris en charge. Si vous utilisez le File Browser d'origine, changez-le dans la Bibliothèque de services : ouvrez File Browser, puis sous Implémentations alternatives choisissez FileBrowser Quantum et sélectionnez Changer. Vos fichiers et comptes sont conservés, mais sauvegardez d'abord File Browser ; ensuite, réappliquez les restrictions de dossier par utilisateur et les règles d'accès, puis recréez les liens de partage.`,
   },
   migrations: {
     up: async ({ effects }) => {},

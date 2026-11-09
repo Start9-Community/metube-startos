@@ -112,7 +112,7 @@ One interface.
 | --------- | ---- | ---- | ---- | ------------------------ |
 | Web UI    | `ui` | ui   | 8081 | The MeTube web interface |
 
-**MeTube has no login of its own.** The whole interface is gated by HTTP basic auth applied at the StartOS reverse proxy, with the username `admin` and the generated password — the application never learns about it. The gate rides on the interface's TLS address, which is the one StartOS publishes for the LAN.
+**MeTube has no login of its own.** The whole interface is gated by HTTP basic auth applied at the StartOS reverse proxy, with the username `admin` and the generated password — the application never learns about it. The gate covers every address the interface publishes, plain HTTP as well as TLS.
 
 The gate is configured from the same reactive read as everything else, so setting or rotating the password takes effect without any further action.
 
@@ -211,7 +211,7 @@ startos_managed_env_vars:
   - STATE_DIR
 dependencies:
   - nextexplorer # optional, kind: exists, '>=3.1.0:2', enabled only while it is the destination; download-destination runs its add-location
-  - filebrowser # optional, kind: exists, '>=2.63.18:3', enabled only while it is the destination
+  - filebrowser # optional, kind: exists, '>=#quantum:2.0.2-stable:3', enabled only while it is the destination
 interfaces:
   ui: { type: ui, port: 8081 } # basic auth at the StartOS proxy, user "admin"
 actions:

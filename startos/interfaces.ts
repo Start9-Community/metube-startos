@@ -14,7 +14,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const uiMulti = sdk.MultiHost.of(effects, 'ui-multi')
   const uiMultiOrigin = await uiMulti.bindPort(uiPort, {
     protocol: 'http',
-    addSsl: password
+    proxy: password
       ? {
           auth: {
             type: 'basic',
