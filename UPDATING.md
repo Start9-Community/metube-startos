@@ -16,7 +16,7 @@ The current pin lives in `startos/manifest/index.ts`, as the `IMAGE` build arg o
 root `Dockerfile`, which layers a CA-store refresh on top of the image:
 
 ```typescript
-dockerBuild: { buildArgs: { IMAGE: 'alexta69/metube:2026.10.20' } },
+dockerBuild: { buildArgs: { IMAGE: 'alexta69/metube:2026.11.24' } },
 ```
 
 ## Applying the bump

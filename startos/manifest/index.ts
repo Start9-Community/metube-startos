@@ -14,7 +14,7 @@ export const manifest = setupManifest({
   images: {
     metube: {
       source: {
-        dockerBuild: { buildArgs: { IMAGE: 'alexta69/metube:2026.10.20' } },
+        dockerBuild: { buildArgs: { IMAGE: 'alexta69/metube:2026.11.24' } },
       },
       arch: ['x86_64', 'aarch64'],
     },
